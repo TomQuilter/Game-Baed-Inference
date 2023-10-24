@@ -1,0 +1,108 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{GBI}
+\author{Tom Quilter, Yifan Zhu, Mingfei Sun and Samuel Kaski}
+\date{October 2023}
+
+
+\documentclass{article}
+\begin{document}
+
+\maketitle
+
+\section{Problem Formulation}
+
+\text{
+
+Consider a constrained MDP $\mathcal{M}$ (see formulation below) which has specific unknown constraints C and a single known $\mathcal{T}$,  an optimal trajectory of all agents. 
+\\\\
+Conventional IRL focuses on inferring a reward function that explains an
+agent’s policy, revealed through the behavior observed in a set of demonstrated
+trajectories D. However, here we pose a different challenge: given an MDP M , including a reward function, and a single optimal trajectory \mathcal{T} from a multi-agent game, find the most likely set of constraints C that explain this trajectory.
+\\\\
+( there maybe multiple  possible constraints for a given optimal trajectory, there maybe multiple optimal trajectory's for a given constraint, later we may relax to expert trajectory rather than optimal.) 
+
+
+\subsection{The \textbf{goal} }  
+
+ 
+
+To find the constraints \( C \) which are most likely to have been added to a nominal MDP \( M \) (an MDP with zero constraints) , given a set of expert trajectories  \( \[ \mathcal{T} \] \) from agents playing a multiplayer game in a constrained MDP. }
+
+\text{ 
+
+\[ \max P(C | \mathcal{T}) \]} 
+
+Also if we assume an initial uniform prior over possible constraints, then we know from Bayes’ Rule that \( P(C | \mathcal{T}) \propto P(\mathcal{T} | C) \). \\ Therefore, in order to find the constraints that maximize \( P(C | \mathcal{T}) \), we can solve the equivalent problem of finding which constraints maximize the likelihood of the given trajectories.
+}
+
+\text{
+\[
+\max P(C | \mathcal{T}) \propto P(\mathcal{T} | C)
+\]
+\end{itemize}
+
+\subsection{Bayesian Inference Formulation }  
+
+\subsubsection{Initially: Given just $\mathcal{T}$}  
+
+Assume an initial probability distribution $P(C | \phi )$ of all possible true constraints in the state space.
+
+Initially consider the first posterior distribution:
+
+\text{
+\[
+P( C | \mathcal{T}, \phi ) = \frac{P( \mathcal{T} | C , \phi ) P ( C)}{P( \mathcal{T}  | \phi )}
+\]
+
+where $\phi$ represents unknown latent variables driving the mapping of constraints to optimal trajectories.
+
+${P( \mathcal{T}  | \phi )}$ can be expressed as the following integral ...
+\\\\
+Note for simple games a set of constraints will have a fully known optimal trajectory, found via RL, such that $P( \mathcal{T}  | C ) =$ \{0,1\}. Unlike more complex games (eg: Go) where the optimal trajectory is unknown. 
+
+\subsubsection{Updating the posterior}  
+Consider now a new set of known constraints $c_1$ with corresponding optimal trajectory $t_1 = T(c_1) $ is obtained, where the function T maps constraints to optimal trajectories.
+Our posterior now becomes:
+
+\text{
+\[
+P( C | \mathcal{T}, \phi, c_1, t_1 ) = \frac{P( \mathcal{T} | C , \phi, c_1, t_1 ) P ( C)}{P( \mathcal{T}  | \phi, c_1, t_1 )}
+\]
+}
+
+or more generally with a history of n known constraints $\{c\} = \{c_1, c_2, ... , c_n\}$ and corresponding optimal trajectories $\{t\} = \{t_1, t_2, ... , t_n\}$ 
+
+\text{
+\[
+P( C | \mathcal{T}, \phi, \{c\}, \{t\} ) = \frac{P( \mathcal{T} | C , \phi, \{c\}, \{t\} ) P ( C)}{P( \mathcal{T}  | \phi, \{c\},\{t\} )}
+\]
+}
+
+\subsubsection{The acquisition function: How to select the optimal next set of constraints $c_i$ to sample}  
+
+We wish to select $c_{n+1}$ that maximises the expectation of the posterior
+
+\text{
+\[
+\mathbb{E}_{c_{n+1}} P( C | \mathcal{T}, \phi, \{c\}, \{t\} )
+\]
+}
+where $\{c\} = \{c_1, c_2, ... , c_n, c_{n+1}\}$ 
+
+
+
+\subsection{Formulation of a Constrained MDP}  
+
+
+\text{ Following the formulation presented by Ziebart et al. (2008), we base our work in the setting of a (finite-state) Markov Decision Process (MDP). We define an MDP $M$ as a tuple $(S, \{A_s\}, \{P_{s,a}\}, D_0, \phi, R)$ where:
+\begin{itemize}
+    \item $S$ is a finite set of discrete states.
+    \item $\{A_s\}$ is a set of the sets of actions available to be taken for each state $s$, such that $A_s \subseteq A$, where $A$ is a finite set of discrete actions.
+    \item $\{P_{s,a}\}$ is a set of state transition probability distributions such that $P_{s,a}(s_0)$ = $P(s_0|s, a)$ is the probability of transitioning to state $s_0$ after taking action $a$ from state $s$.
+    \item $D_0: S \rightarrow [0, 1]$ is an initial state distribution.
+    \item $R: S \times A \rightarrow \mathbb{R}$ is a reward function.
+\end{itemize}
+
+\end{document}
